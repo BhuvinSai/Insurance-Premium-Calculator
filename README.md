@@ -103,6 +103,7 @@ techsophy/
 
 ```bash
 pip install streamlit pandas numpy joblib scikit-learn
+```
 
 ---
 How to Run the Application
