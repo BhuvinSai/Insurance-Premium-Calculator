@@ -79,13 +79,14 @@ techsophy/
 pip install streamlit pandas numpy joblib scikit-learn
 ```
 ---
-##How to Run the Application
-#1. CLI Mode (Batch Processing)
----
+How to Run the Application
+1. CLI Mode (Batch Processing)
+
 
 Run the pipeline in batch mode from your terminal:
 
-```bash python src/main_orches.py
+```bash
+python src/main_orches.py
 ```
 
 Action: Enter the number of customers to analyze when prompted.
