@@ -57,9 +57,7 @@ The solution follows a professional insurance pricing pipeline:
 techsophy/
 ├── ```src/ # Python source code```
 
-
 │ ├── ```app.py # Streamlit dashboard interface```
-
 
 │ ├── risk_asses.py # RiskAssessmentEngine class
 │ ├── pricing_calcu.py # PricingCalculator class
