@@ -1,71 +1,66 @@
-import random
-from typing import Dict, Any, Tuple
-import joblib
 import numpy as np
-import warnings
-
-# --- Risk Assessment Engine (OOP) ---
-# Uses a trained Logistic Regression (GLM) model to generate risk score.
+import joblib
+import os
+import pandas as pd
 
 class RiskAssessmentEngine:
     """
-    Calculates a personalized risk score based on applicant's static data
-    using a trained Logistic Regression Model (GLM).
+    RiskAssessmentEngine calculates risk scores for drivers
+    using a trained ML model (GLM) or a fallback heuristic.
     """
 
-    MODEL_FEATURES: list = ['Driver Age', 'Previous Accidents', 'Annual Mileage (x1000 km)']
-    MAX_RISK_SCORE: float = 10.0
-
     def __init__(self):
-        print("Loading Trained GLM Risk Model...")
+        # Define paths
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        MODEL_DIR = os.path.join(BASE_DIR, "model and data")
+        self.model_path = os.path.join(MODEL_DIR, "glm_risk_model.pkl")
+        self.scaler_path = os.path.join(MODEL_DIR, "risk_scaler.pkl")
+
+        # Load model and scaler
         try:
-            self.model = joblib.load('glm_risk_model.pkl')
-            self.scaler = joblib.load('risk_scaler.pkl')
-            self.risk_threshold = np.load('risk_threshold.npy').item()
-            print("GLM Model, Scaler, and Threshold loaded successfully.")
-        except FileNotFoundError:
-            print("ERROR: ML model files not found. Using dummy risk estimation.")
-            self.model = None
-            self.scaler = None
-            self.risk_threshold = 493.95
+            print("Loading Trained GLM Risk Model...")
+            self.model = joblib.load(self.model_path)
+            self.scaler = joblib.load(self.scaler_path)
+            self.ml_available = True
+        except Exception as e:
+            print("❌ ERROR: ML model files not found. Using dummy risk estimation.")
+            print(f"Reason: {e}")
+            self.ml_available = False
 
-    def calculate_risk_score(self, applicant_data: Dict[str, Any]) -> Tuple[float, str]:
+    def calculate_risk(self, data):
+        """
+        Calculate risk score for a single driver.
+        data: dict with keys ["Driver Age", "Previous Accidents", "Annual Mileage (x1000 km)"]
+        Returns a float risk score rounded to 2 decimals.
+        """
+        age = data.get("Driver Age", 30)
+        accidents = data.get("Previous Accidents", 0)
+        mileage = data.get("Annual Mileage (x1000 km)", 10)
 
-        input_data = np.array([[ 
-            applicant_data.get('Driver Age', 30),
-            applicant_data.get('Previous Accidents', 0),
-            applicant_data.get('Annual Mileage (x1000 km)', 15)
-        ]])
+        X = np.array([[age, accidents, mileage]])
 
-        if self.model is None:
-            predicted_risk_prob = 0.5
+        if self.ml_available:
+            # Ensure feature order matches training
+            X_scaled = self.scaler.transform(X)
+            risk_score = self.model.predict(X_scaled)[0]
         else:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                scaled_data = self.scaler.transform(input_data)
-                predicted_risk_prob = self.model.predict_proba(scaled_data)[0][1]
+            # Fallback heuristic
+            risk_score = (accidents * 1.8) + (mileage * 0.05) + (age * 0.02)
 
-        risk_score = predicted_risk_prob * self.MAX_RISK_SCORE
+        return round(float(risk_score), 2)
 
-        age, claims, mileage = input_data[0]
-
-        if claims > 2:
-            main_driver = f"Very High Claims ({claims:.0f})"
-        elif age < 25 or age > 60:
-            main_driver = f"Age ({age:.0f}) outside optimal bracket"
-        elif mileage > 25:
-            main_driver = f"High Annual Mileage ({mileage:.0f}k km)"
-        else:
-            main_driver = "Favorable / Average Profile"
-
-        explanation = f"""
-Risk Assessment Summary (Logistic Regression Model):
-- Prediction Method: GLM (Logistic Regression)
-- Predicted High-Risk Probability: {predicted_risk_prob:.4f}
-- Risk Threshold Reference: ${self.risk_threshold:.2f}
-- Primary Risk Driver: {main_driver}
-- Final Risk Score (0 - 10): {risk_score:.2f}
-"""
-
-        return risk_score, explanation.strip()
-    
+    def calculate_risk_batch(self, df):
+        """
+        Optional: calculate risk scores for a DataFrame.
+        df: pandas DataFrame with columns ["Driver Age", "Previous Accidents", "Annual Mileage (x1000 km)"]
+        Returns a pandas Series of risk scores.
+        """
+        risk_scores = []
+        for _, row in df.iterrows():
+            data_dict = {
+                "Driver Age": row.get("Driver Age", 30),
+                "Previous Accidents": row.get("Previous Accidents", 0),
+                "Annual Mileage (x1000 km)": row.get("Annual Mileage (x1000 km)", 10)
+            }
+            risk_scores.append(self.calculate_risk(data_dict))
+        return pd.Series(risk_scores, index=df.index)
