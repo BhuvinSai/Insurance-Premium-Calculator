@@ -170,8 +170,3 @@ Provide this link during submission:
 ```
 https://github.com/BhuvinSai/Insurance-Premium-Calculator
 
-```
-
----
-
-✅ This project demonstrates real-world insurance pricing using Artificial Intelligence and data-driven decision-making.
