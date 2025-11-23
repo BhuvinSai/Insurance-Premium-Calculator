@@ -78,8 +78,10 @@ techsophy/
 ```bash
 pip install streamlit pandas numpy joblib scikit-learn
 ```
+---
 ##How to Run the Application
 #1. CLI Mode (Batch Processing)
+---
 
 Run the pipeline in batch mode from your terminal:
 
