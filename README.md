@@ -2,7 +2,6 @@
 ## Dynamic AI Insurance Premium System
 
 [![Python Version](https://img.shields.io/badge/python-3.x-blue)](https://www.python.org/)  
-[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
 ---
 
