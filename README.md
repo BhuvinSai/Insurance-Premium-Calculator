@@ -59,15 +59,23 @@ techsophy/
 
 │ ├── ```app.py # Streamlit dashboard interface```
 
-│ ├── risk_asses.py # RiskAssessmentEngine class
-│ ├── pricing_calcu.py # PricingCalculator class
-│ └── market_analyzer.py # MarketAnalyzer class
+│ ├── ```risk_asses.py # RiskAssessmentEngine class```
+
+│ ├── ```pricing_calcu.py # PricingCalculator class```
+
+│ └──``` market_analyzer.py # MarketAnalyzer class```
+
 ├── data_and_model/ # Dataset and ML models
-│ ├── car_insurance_premium_dataset_TEST.csv
-│ ├── glm_risk_model.pkl
-│ ├── risk_scaler.pkl
-│ ├── rf_conversion_model.pkl
-│ └── rf_conversion_scaler.pkl
+
+│ ├── ```car_insurance_premium_dataset_TEST.csv```
+
+│ ├── ```glm_risk_model.pkl```
+
+│ ├── ```risk_scaler.pkl```
+
+│ ├── ```rf_conversion_model.pkl```
+│ └── ```rf_conversion_scaler.pkl```
+
 └── README.md # Project documentation
 
 ---
